@@ -1,33 +1,32 @@
 
-# # TO PREDICT AIR QUAILITY INDEX 
-# 
+# # TO PREDICT THE AIR QUALITY INDEX 
 
-# In[45]:
+
 
 
 import pandas as pd
 import numpy as np
 
 
-# In[12]:
+
 
 
 df=pd.read_csv('six months (1).csv')
 
 
-# In[20]:
+
 
 
 df.head(1)
 
 
-# In[22]:
+
 
 
 df["PM2.5_24hr_avg"] = df["PM 2.5"].rolling(window = 24, min_periods = 16).mean().values
 
 
-# In[23]:
+
 
 
 ## PM2.5 Sub-Index calculation
@@ -50,16 +49,18 @@ def get_PM25_subindex(x):
 df["PM2.5_SubIndex"] = df["PM2.5_24hr_avg"].apply(lambda x: get_PM25_subindex(x))
 
 
-# In[24]:
+
 
 
 df["PM10_24hr_avg"] = df["PM 10"].rolling(window = 24, min_periods = 16).mean().values
 
 
-# In[25]:
+
 
 
 ## PM10 Sub-Index calculation
+
+
 def get_PM10_subindex(x):
     if x <= 50:
         return x
@@ -79,16 +80,22 @@ def get_PM10_subindex(x):
 df["PM10_SubIndex"] = df["PM10_24hr_avg"].apply(lambda x: get_PM10_subindex(x))
 
 
-# In[26]:
+
+
+
 
 
 df["SO2_24hr_avg"] = df["SO2"].rolling(window = 24, min_periods = 16).mean().values
 
 
-# In[27]:
+
+
+
 
 
 ## SO2 Sub-Index calculation
+
+
 def get_SO2_subindex(x):
     if x <= 40:
         return x * 50 / 40
@@ -108,13 +115,19 @@ def get_SO2_subindex(x):
 df["SO2_SubIndex"] = df["SO2_24hr_avg"].apply(lambda x: get_SO2_subindex(x))
 
 
-# In[36]:
+
+
+
+
 
 
 df["NO2_24hr_avg"] = df["NO2"].rolling(window = 24, min_periods = 16).mean().values
 
 
-# In[38]:
+
+
+
+
 
 
 ## NO2 Sub-Index calculation
@@ -137,13 +150,19 @@ def get_NO2_subindex(x):
 df["NO2_SubIndex"] = df["NO2_24hr_avg"].apply(lambda x: get_NO2_subindex(x))
 
 
-# In[40]:
+
+
+
 
 
 df["O3_8hr_max"] = df["O3"].rolling(window = 8, min_periods = 1).max().values
 
 
-# In[41]:
+
+
+
+
+
 
 
 ## O3 Sub-Index calculation
@@ -166,16 +185,25 @@ def get_O3_subindex(x):
 df["O3_SubIndex"] = df["O3_8hr_max"].apply(lambda x: get_O3_subindex(x))
 
 
-# In[43]:
+
+
+
+
+
 
 
 df["CO_8hr_max"] = df["CO"].rolling(window = 8, min_periods = 1).max().values
 
 
-# In[44]:
+
+
+
+
 
 
 ## CO Sub-Index calculation
+
+
 def get_CO_subindex(x):
     if x <= 1:
         return x * 50 / 1
@@ -195,10 +223,13 @@ def get_CO_subindex(x):
 df["CO_SubIndex"] = df["CO_8hr_max"].apply(lambda x: get_CO_subindex(x))
 
 
-# In[53]:
+
+
 
 
 ## AQI bucketing
+
+
 def get_AQI_bucket(x):
     if x <= 50:
         return "Good"
@@ -215,12 +246,17 @@ def get_AQI_bucket(x):
     else:
         return np.NaN
 
+
+
 df["Checks"] = (df["PM2.5_SubIndex"] > 0).astype(int) + \
                 (df["PM10_SubIndex"] > 0).astype(int) + \
                 (df["SO2_SubIndex"] > 0).astype(int) + \
                 (df["NO2_SubIndex"] > 0).astype(int) + \
                 (df["CO_SubIndex"] > 0).astype(int) + \
                 (df["O3_SubIndex"] > 0).astype(int)
+
+
+
 
 df["AQI_calculated"] = round(df[["PM2.5_SubIndex", "PM10_SubIndex", "SO2_SubIndex", "NO2_SubIndex",
                             "CO_SubIndex", "O3_SubIndex"]].max(axis = 1))
@@ -231,13 +267,8 @@ df["AQI_bucket_calculated"] = df["AQI_calculated"].apply(lambda x: get_AQI_bucke
 df[~df.AQI_calculated.isna()].head(50)
 
 
-# In[ ]:
 
 
-
-
-
-# In[ ]:
 
 
 
